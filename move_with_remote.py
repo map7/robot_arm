@@ -91,8 +91,8 @@ def callback(data, addr, ctrl):
         
     elif data == 0x47: # record
         print("RECORD")
-        record = 1
         movementsArr=[]
+        record = 1
         
     elif data == 0x46: # stop
         print("STOP")
