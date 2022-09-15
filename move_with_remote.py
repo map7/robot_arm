@@ -15,6 +15,7 @@
 # test()
 from servo import Servo
 import time
+import ujson
 from machine import Pin
 from ir_rx.nec import NEC_8  # NEC remote, 8 bit addresses
 
@@ -22,8 +23,8 @@ def free(self):
   self.__motor.duty_u16(0)
 
 movementsArr = []
-
 lastData = 0
+record = 0
 
 pwm0Pin=0 #change for your pin
 base=Servo(pwm0Pin)
@@ -46,13 +47,14 @@ free(thick)
 free(base)
 
 def callback(data, addr, ctrl):
-  global movementsArr, basePos, thickPos, clawPos, lastData
+  global record,movementsArr, basePos, thickPos, clawPos, lastData
   
   if data < 0:
     data = lastData
   
   if data > 0:  # NEC protocol sends repeat codes.
     print('Data {:02x}'.format(data))
+    
     if data == 0x13:
         print("RESET")
         basePos = 0
@@ -78,20 +80,59 @@ def callback(data, addr, ctrl):
         if basePos < 90:
           basePos = basePos + 10
           base.move(basePos)
-    elif data == 0x5b:
+    elif data == 0x5b: # channel up
         print("OPEN")
         claw.move(50)
         clawPos = 50
-    elif data == 0x5f:
+    elif data == 0x5f: # channel down
         print("CLOSE")
         claw.move(-53)
         clawPos = -53
-       
-    movements = {"base": basePos, "thick": thickPos, "claw": clawPos}
-    print(f'movements={movements}')
+        
+    elif data == 0x47: # record
+        print("RECORD")
+        record = 1
+        
+    elif data == 0x46: # stop
+        print("STOP")
+        record = 0
+        output = ujson.dumps(movementsArr)
+        print(f'JSON={output}')
+        f=open("movements.json","w")
+        f.write(str(output))
+        f.close()
+        
+    elif data == 0x43: # play
+        print("PLAY")
+        f=open("movements.json", "r")
+        data = f.read()
+        print(f'{data}')
+        movementsArr=ujson.loads(data)
+        f.close()
+        
+        print(f'Array={len(movementsArr)}')
+        
+        # Step through movementsArr
+        print("Moving")
+        for move in movementsArr:
+            print(f'{move["base"]}')
+            base.move(move["base"])
+            thick.move(move["thick"])
+            claw.move(move["claw"])
+            time.sleep(0.5)
+            free(claw)
+            free(base)
+            free(thick)
+            
+        # Move each motor to the value in the hash
+        # sleep 0.5
+        
+        #movementsArr = []
 
-    movementsArr.append(movements)
-    print(f'Array={len(movementsArr)}')
+    if record == 1:
+        movements = {"base": basePos, "thick": thickPos, "claw": clawPos}
+        movementsArr.append(movements)
+        print(f'Array={len(movementsArr)}')
     
     time.sleep(0.4)
     free(claw)
