@@ -21,6 +21,8 @@ from ir_rx.nec import NEC_8  # NEC remote, 8 bit addresses
 def free(self):
   self.__motor.duty_u16(0)
 
+movementsArr = []
+
 lastData = 0
 
 pwm0Pin=0 #change for your pin
@@ -44,7 +46,7 @@ free(thick)
 free(base)
 
 def callback(data, addr, ctrl):
-  global basePos, thickPos, clawPos, lastData
+  global movementsArr, basePos, thickPos, clawPos, lastData
   
   if data < 0:
     data = lastData
@@ -88,6 +90,9 @@ def callback(data, addr, ctrl):
     movements = {"base": basePos, "thick": thickPos, "claw": clawPos}
     print(f'movements={movements}')
 
+    movementsArr.append(movements)
+    print(f'Array={len(movementsArr)}')
+    
     time.sleep(0.4)
     free(claw)
     free(base)
