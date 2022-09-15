@@ -1,0 +1,9 @@
+* Robot Arm
+
+Uses Raspberry PI PICO + 3d printed arm with 4 motors.
+
+** Build of Materials
+
+** Use
+
+** Future plans
