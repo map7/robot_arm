@@ -35,7 +35,8 @@ thick.move(thickPos)
 
 pwm3Pin=3 
 claw=Servo(pwm3Pin)
-claw.move(-53)
+clawPos=-53
+claw.move(clawPos)
 
 time.sleep(0.4)
 free(claw)
@@ -43,7 +44,7 @@ free(thick)
 free(base)
 
 def callback(data, addr, ctrl):
-  global basePos, thickPos, lastData
+  global basePos, thickPos, clawPos, lastData
   
   if data < 0:
     data = lastData
@@ -78,11 +79,15 @@ def callback(data, addr, ctrl):
     elif data == 0x5b:
         print("OPEN")
         claw.move(50)
+        clawPos = 50
     elif data == 0x5f:
         print("CLOSE")
         claw.move(-53)
-        
-    print(basePos)
+        clawPos = -53
+       
+    movements = {"base": basePos, "thick": thickPos, "claw": clawPos}
+    print(f'movements={movements}')
+
     time.sleep(0.4)
     free(claw)
     free(base)
