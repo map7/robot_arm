@@ -92,6 +92,7 @@ def callback(data, addr, ctrl):
     elif data == 0x47: # record
         print("RECORD")
         record = 1
+        movementsArr=[]
         
     elif data == 0x46: # stop
         print("STOP")
@@ -124,11 +125,6 @@ def callback(data, addr, ctrl):
             free(base)
             free(thick)
             
-        # Move each motor to the value in the hash
-        # sleep 0.5
-        
-        #movementsArr = []
-
     if record == 1:
         movements = {"base": basePos, "thick": thickPos, "claw": clawPos}
         movementsArr.append(movements)
