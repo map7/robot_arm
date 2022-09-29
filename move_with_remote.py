@@ -153,14 +153,16 @@ def callback(data, addr, ctrl):
             print(f'{move["base"]}')
             base.move(move["base"])
             thick.move(move["thick"])
+            thin.move(move["thin"])
             claw.move(move["claw"])
             time.sleep(0.5)
             free(claw)
+            free(thin)
             free(base)
             free(thick)
             
     if record == 1:
-        movements = {"base": basePos, "thick": thickPos, "claw": clawPos}
+        movements = {"base": basePos, "thick": thickPos, "thin": thinPos, "claw": clawPos}
         movementsArr.append(movements)
         print(f'Array={len(movementsArr)}')
     
