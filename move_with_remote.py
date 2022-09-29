@@ -26,15 +26,20 @@ movementsArr = []
 lastData = 0
 record = 0
 
-pwm0Pin=0 #change for your pin
+pwm0Pin=0
 base=Servo(pwm0Pin)
 basePos=0
 base.move(basePos)
 
-pwm1Pin=1 #change for your pin
+pwm1Pin=1
 thick=Servo(pwm1Pin)
-thickPos=20
+thickPos=10
 thick.move(thickPos)
+
+pwm2Pin=2
+thin=Servo(pwm2Pin)
+thinPos =50 # 50,60,70,80,90
+thin.move(thinPos)
 
 pwm3Pin=3 
 claw=Servo(pwm3Pin)
@@ -43,11 +48,12 @@ claw.move(clawPos)
 
 time.sleep(0.4)
 free(claw)
+free(thin)
 free(thick)
 free(base)
 
 def callback(data, addr, ctrl):
-  global record,movementsArr, basePos, thickPos, clawPos, lastData
+  global record,movementsArr, basePos, thinPos, thickPos, clawPos, lastData
   
   if data < 0:
     data = lastData
@@ -59,20 +65,42 @@ def callback(data, addr, ctrl):
         print("RESET")
         basePos = 0
         base.move(basePos)
-        thickPos = 20
-        thick.move(20)
+        thickPos = 10
+        thick.move(thickPos)
+        thinPos=50
+        thin.move(thinPos)
         claw.move(-53)
         
     elif data == 0x0c:
         print("UP")
         thickPos = thickPos + 10
         thick.move(thickPos)
+        print(thickPos)
         
     elif data == 0x10:
         print("DOWN")
         thickPos = thickPos - 10
         thick.move(thickPos)
+        print(thickPos)
         
+    elif data == 0x5a:
+        print("THIN SHORT")
+        if thinPos > 50:
+            thinPos = thinPos - 10
+            thin.move(thinPos)
+        else:
+            print("MIN")
+        print(thinPos)
+        
+    elif data == 0x5e:
+        print("THIN REACH")
+        if thinPos < 90:
+            thinPos = thinPos + 10
+            thin.move(thinPos)
+        else:
+            print("MAX")
+        print(thinPos)
+
     elif data == 0x08:
         print("LEFT")
         if basePos > -90:
@@ -138,6 +166,7 @@ def callback(data, addr, ctrl):
     
     time.sleep(0.4)
     free(claw)
+    free(thin)
     free(base)
     free(thick)
     lastData = data
