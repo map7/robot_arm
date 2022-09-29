@@ -62,28 +62,34 @@ def callback(data, addr, ctrl):
         thickPos = 20
         thick.move(20)
         claw.move(-53)
+        
     elif data == 0x0c:
         print("UP")
         thickPos = thickPos + 10
         thick.move(thickPos)
+        
     elif data == 0x10:
         print("DOWN")
         thickPos = thickPos - 10
         thick.move(thickPos)
+        
     elif data == 0x08:
         print("LEFT")
         if basePos > -90:
           basePos = basePos - 10
           base.move(basePos)
+          
     elif data == 0x04:
         print("RIGHT")
         if basePos < 90:
           basePos = basePos + 10
           base.move(basePos)
+          
     elif data == 0x5b: # channel up
         print("OPEN")
         claw.move(50)
         clawPos = 50
+        
     elif data == 0x5f: # channel down
         print("CLOSE")
         claw.move(-53)
@@ -136,4 +142,4 @@ def callback(data, addr, ctrl):
     free(thick)
     lastData = data
     
-ir = NEC_8(Pin(16, Pin.IN), callback)
+ir = NEC_8(Pin(16, Pin.IN), callback) 
